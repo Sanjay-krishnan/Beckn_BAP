@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -29,25 +30,28 @@ import com.tibil.BecknBAP.service.ServiceUtils;
 @Component
 public class SearchRequestService implements ProcessInternalRequestService {
 
+	@Value("${gateway.url}")
+	private String bppUrl;
 	private ServiceRequestRepository serviceRequestRepository;
 	private ServiceRequestFlowRepository serviceRequestFlowRepository;
 	private ObjectMapper objectMapper;
+	private ServiceUtils utils;
 
 	@Autowired
 	public SearchRequestService(ServiceRequestRepository serviceRequestRepository,
-			ServiceRequestFlowRepository serviceRequestFlowRepository, ObjectMapper objectMapper) {
+			ServiceRequestFlowRepository serviceRequestFlowRepository, ObjectMapper objectMapper, ServiceUtils utils) {
 		super();
 		this.serviceRequestRepository = serviceRequestRepository;
 		this.serviceRequestFlowRepository = serviceRequestFlowRepository;
 		this.objectMapper = objectMapper;
 		this.objectMapper.setSerializationInclusion(Include.NON_NULL);
+		this.utils = utils;
 	}
 
 	@Override
 	public ResponseEntity<InlineResponse200> processInternalRequest(Object requestBody) {
 
 		Search inputBody = (Search) requestBody;
-		ServiceUtils utils = new ServiceUtils();
 
 		Item item = new Item().descriptor(new Descriptor().name(inputBody.getDesignation()));
 		HashMap<String, Object> tags = new HashMap<String, Object>();
@@ -69,9 +73,9 @@ public class SearchRequestService implements ProcessInternalRequestService {
 		searchBody.setContext(utils.getContext());
 		searchBody.setMessage(new SearchMessage().intent(new Intent().item(item)));
 		System.out.println(searchBody);
+		System.out.println(bppUrl);
 
-		ResponseEntity<InlineResponse200> response = restTemplate.postForEntity("http://localhost:8090/v1/api/search",
-				searchBody, InlineResponse200.class);	
+		ResponseEntity<InlineResponse200> response = restTemplate.postForEntity(bppUrl, searchBody, InlineResponse200.class);	
 		
 
 		ServiceRequestFlow flow = new ServiceRequestFlow();

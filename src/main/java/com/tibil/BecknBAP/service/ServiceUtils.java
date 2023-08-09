@@ -3,10 +3,17 @@ package com.tibil.BecknBAP.service;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.tibil.BecknBAP.dto.beckn.Context;
 import com.tibil.BecknBAP.dto.beckn.Context.ActionEnum;
 
+@Component
 public class ServiceUtils {
+	
+	@Value("${bap.url}")
+	private String bapUrl;
 	
 	public Context getContext() {
 		
@@ -14,7 +21,7 @@ public class ServiceUtils {
 		context.setAction(ActionEnum.SEARCH);
 		context.setCoreVersion("1.0.0");
 		context.setBapId("");
-		context.setBapUri("http://localhost:8080");
+		context.setBapUri(bapUrl);
 		context.setCity("BLR");
 		context.setCountry("IND");
 		context.setDomain("Human Resource");
